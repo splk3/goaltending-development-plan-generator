@@ -2,44 +2,59 @@
 
 ## Project Overview
 
-This repository hosts a **Jekyll-based GitHub Pages website** designed to help youth ice hockey teams and clubs generate customized goaltending development plans.
+This repository hosts a **GatsbyJS-based GitHub Pages website** designed to help youth ice hockey teams and clubs generate customized goaltending development plans.
 
 ## Technology Stack
 
-- **Static Site Generator**: Jekyll
+- **Static Site Generator**: GatsbyJS 5
 - **Hosting**: GitHub Pages
-- **Templating**: Liquid templates
-- **Styling**: CSS/Sass
-- **Markup**: Markdown/HTML
+- **Framework**: React 18
+- **Styling**: Tailwind CSS 3 (utility-first CSS framework)
+- **Build Tool**: Gatsby with PostCSS
+- **Package Manager**: npm
 
 ## Repository Structure
 
-- `_site/`: Generated site (git-ignored, created by Jekyll build)
-- `.sass-cache/`, `.jekyll-cache/`, `.jekyll-metadata`: Jekyll build artifacts (git-ignored)
-- `/vendor`: Bundler dependencies (git-ignored)
-- `Gemfile`: Ruby dependencies for Jekyll
-- `Gemfile.lock`: Git-ignored (GitHub Pages uses its own version)
+- `public/`: Generated site (git-ignored, created by Gatsby build)
+- `.cache/`: Gatsby cache directory (git-ignored)
+- `node_modules/`: npm dependencies (git-ignored)
+- `src/`: Source code directory
+  - `src/pages/`: Page components (auto-routed by Gatsby)
+  - `src/components/`: Reusable React components
+  - `src/styles/`: Global CSS styles
+- `static/`: Static assets (copied to public folder as-is)
+- `gatsby-config.js`: Gatsby configuration file
+- `gatsby-browser.js`: Gatsby browser APIs
+- `tailwind.config.js`: Tailwind CSS configuration
+- `postcss.config.js`: PostCSS configuration
+- `package.json`: npm dependencies and scripts
 
 ## Development Guidelines
 
-### Working with Jekyll
+### Working with Gatsby
 
 1. **Local Development**:
-   - Use `bundle install` to install dependencies locally
-   - Use `bundle exec jekyll serve` to run the development server
+   - Use `npm install` to install dependencies
+   - Use `npm run develop` or `npm start` to run the development server
+   - Server runs at `http://localhost:8000`
+   - GraphQL playground available at `http://localhost:8000/___graphql`
    - Test changes locally before committing
 
 2. **GitHub Pages Deployment**:
-   - GitHub Pages automatically builds and deploys from the default branch
-   - No need to commit `_site/` or build artifacts
-   - GitHub Pages uses its own version of the pages-gem
+   - Use `npm run build` to build the production site
+   - Use `npm run deploy` to deploy to GitHub Pages
+   - Site is deployed to `https://splk3.github.io/goaltending-development-plan-generator/`
+   - Path prefix is configured in `gatsby-config.js`
+   - GitHub Actions workflow may automate deployment
 
 ### Code Style
 
-- Follow Jekyll best practices for layouts, includes, and data files
+- Follow React and Gatsby best practices
+- Use functional components with hooks
+- Use Tailwind CSS utility classes for styling
 - Use semantic HTML for accessibility
-- Keep CSS/Sass organized and maintainable
 - Write descriptive commit messages
+- Keep components small and focused
 
 ### Content Guidelines
 
@@ -47,33 +62,55 @@ This repository hosts a **Jekyll-based GitHub Pages website** designed to help y
 - Ensure content is age-appropriate and educationally valuable
 - Make development plans customizable and practical
 
+### Color Scheme
+
+The site uses USA national colors defined in `tailwind.config.js`:
+- **usa-blue**: `#002868` - Primary blue
+- **usa-red**: `#BF0A30` - Accent red
+- **usa-white**: `#FFFFFF` - Background/text
+
 ## Common Tasks
 
 ### Adding New Features
 
-- Create layouts in `_layouts/`
-- Add reusable components in `_includes/`
-- Store data in `_data/` as YAML or JSON
-- Add pages as Markdown or HTML files
+- Create new pages in `src/pages/` (auto-routed by Gatsby)
+- Add reusable components in `src/components/`
+- Use React functional components with JSX
+- Import and use Tailwind CSS classes for styling
+- Use Gatsby's `<Link>` component for internal navigation
 
 ### Styling Changes
 
-- Edit Sass/CSS files (typically in `_sass/` or `assets/css/`)
-- Use Jekyll's asset pipeline for compilation
+- Use Tailwind CSS utility classes in className attributes
+- Edit global styles in `src/styles/global.css`
+- Extend Tailwind theme in `tailwind.config.js` if needed
+- Follow mobile-first responsive design with Tailwind breakpoints
 
 ### Testing
 
-- Test locally with `bundle exec jekyll serve`
-- Preview changes at `http://localhost:4000`
+- Test locally with `npm run develop`
+- Preview changes at `http://localhost:8000`
 - Check responsive design on different screen sizes
 - Verify all links and navigation work correctly
+- Run `npm run build` to test production build locally
+- Serve production build with `npm run serve`
 
 ## Important Notes
 
-- **Never commit** `Gemfile.lock` - GitHub Pages manages its own versions
-- **Never commit** build artifacts (`_site/`, caches)
-- Ensure all changes are compatible with GitHub Pages' supported Jekyll versions and plugins
+- **Never commit** build artifacts (`public/`, `.cache/`)
+- **Never commit** `node_modules/` directory
+- The path prefix `/goaltending-development-plan-generator` is required for GitHub Pages deployment
+- Gatsby automatically optimizes images and assets for performance
 - Keep the site lightweight and fast-loading for youth sports teams
+- Use Gatsby's built-in optimizations (code splitting, prefetching, etc.)
+
+## Available npm Scripts
+
+- `npm run develop` / `npm start` - Start development server
+- `npm run build` - Build production site
+- `npm run serve` - Serve production build locally
+- `npm run clean` - Clean cache and public directories
+- `npm run deploy` - Build and deploy to GitHub Pages
 
 ## Target Audience
 
