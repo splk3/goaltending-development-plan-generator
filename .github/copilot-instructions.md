@@ -1,4 +1,4 @@
-# Copilot Instructions for Goaltending Development Plan Generator
+# Copilot Instructions for Goalie Gen
 
 ## Project Overview
 
