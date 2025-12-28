@@ -87,8 +87,16 @@ export default function DownloadDrillButton() {
 
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-md w-full shadow-2xl">
-            <h2 className="text-2xl font-bold text-usa-blue dark:text-blue-400 mb-6">
+          <div 
+            className="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-md w-full shadow-2xl"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="drill-modal-title"
+          >
+            <h2 
+              id="drill-modal-title"
+              className="text-2xl font-bold text-usa-blue dark:text-blue-400 mb-6"
+            >
               Download a Goalie Drill
             </h2>
 
