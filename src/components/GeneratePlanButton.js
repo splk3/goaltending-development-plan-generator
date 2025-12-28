@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Document, Packer, Paragraph, TextRun, ImageRun, AlignmentType, HeadingLevel, convertInchesToTwip } from "docx"
+import { Document, Packer, Paragraph, TextRun, ImageRun, AlignmentType, HeadingLevel } from "docx"
 import { saveAs } from "file-saver"
 
 export default function GeneratePlanButton() {

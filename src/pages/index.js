@@ -20,21 +20,21 @@ export default function Home() {
       <main className="container mx-auto px-4 py-12">
         <div className="bg-usa-red dark:bg-red-900 text-usa-white p-8 rounded-lg shadow-lg mb-8">
           <h2 className="text-3xl font-bold mb-4">Welcome</h2>
-          <p className="text-lg mb-6">
+          <p className="text-lg">
             This website makes it easy for youth ice hockey teams and clubs to generate 
             customized goaltending development plans.
           </p>
-          <div className="flex justify-center">
-            <GeneratePlanButton />
-          </div>
         </div>
         
         <div className="grid md:grid-cols-2 gap-6">
           <div className="border-2 border-usa-blue dark:border-blue-400 p-6 rounded-lg bg-white dark:bg-gray-800 transition-colors">
             <h3 className="text-2xl font-bold text-usa-blue dark:text-blue-400 mb-3">Customized Plans</h3>
-            <p className="text-gray-700 dark:text-gray-300">
+            <p className="text-gray-700 dark:text-gray-300 mb-4">
               Generate development plans tailored to your goaltenders' skill levels and goals.
             </p>
+            <div className="flex justify-center">
+              <GeneratePlanButton />
+            </div>
           </div>
           
           <div className="border-2 border-usa-red dark:border-red-400 p-6 rounded-lg bg-white dark:bg-gray-800 transition-colors">
