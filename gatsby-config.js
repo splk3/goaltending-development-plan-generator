@@ -24,15 +24,15 @@ module.exports = {
         background_color: `#FFFFFF`,
         theme_color: `#002868`,
         display: `standalone`,
-        icon: `static/images/logo-alt-light.png`,
+        icon: `static/favicons/android-chrome-512x512.png`,
         icons: [
           {
-            src: `static/images/logo-alt-light.png`,
+            src: `static/favicons/android-chrome-192x192.png`,
             sizes: `192x192`,
             type: `image/png`,
           },
           {
-            src: `static/images/logo-alt-light.png`,
+            src: `static/favicons/android-chrome-512x512.png`,
             sizes: `512x512`,
             type: `image/png`,
           },
