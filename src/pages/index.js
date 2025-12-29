@@ -12,7 +12,7 @@ export default function Home() {
       <header className="bg-usa-blue dark:bg-gray-800 text-usa-white py-6">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center">
-            <Logo variant="full" width={300} height={150} />
+            <Logo variant="full" format="png" width={300} height={150} />
             <DarkModeToggle />
           </div>
         </div>

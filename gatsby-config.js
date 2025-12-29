@@ -15,7 +15,6 @@ module.exports = {
   pathPrefix: `/goalie-gen`,
   plugins: [
     `gatsby-plugin-postcss`,
-    `gatsby-plugin-react-helmet`,
     {
       resolve: `gatsby-plugin-manifest`,
       options: {
@@ -25,18 +24,17 @@ module.exports = {
         background_color: `#FFFFFF`,
         theme_color: `#002868`,
         display: `standalone`,
-        // Note: Change extension to .png after downloading actual logo files
-        icon: `static/images/logo-alt-light.svg`,
+        icon: `static/images/logo-alt-light.png`,
         icons: [
           {
-            src: `static/images/logo-alt-light.svg`,
+            src: `static/images/logo-alt-light.png`,
             sizes: `192x192`,
-            type: `image/svg+xml`,
+            type: `image/png`,
           },
           {
-            src: `static/images/logo-alt-light.svg`,
+            src: `static/images/logo-alt-light.png`,
             sizes: `512x512`,
-            type: `image/svg+xml`,
+            type: `image/png`,
           },
         ],
       },
