@@ -67,8 +67,8 @@ The following are created during development/build and excluded via `.gitignore`
 2. **GitHub Pages Deployment**:
    - Use `npm run build` to build the production site
    - Use `npm run deploy` to deploy to GitHub Pages
-   - Site is deployed to `https://splk3.github.io/goaltending-development-plan-generator/`
-   - Path prefix is configured in `gatsby-config.js`
+   - Site is deployed to `https://splk3.github.io/goalie-gen/`
+   - Path prefix `/goalie-gen` is configured in `gatsby-config.js`
    - GitHub Actions workflow may automate deployment
 
 ### Code Style
@@ -297,7 +297,7 @@ Before Copilot submits a PR for review, it MUST:
 
 - **Never commit** build artifacts (`public/`, `.cache/`)
 - **Never commit** `node_modules/` directory
-- The path prefix `/goaltending-development-plan-generator` is required for GitHub Pages deployment
+- The path prefix `/goalie-gen` is required for GitHub Pages deployment
 - Gatsby automatically optimizes images and assets for performance
 - Keep the site lightweight and fast-loading for youth sports teams
 - Use Gatsby's built-in optimizations (code splitting, prefetching, etc.)
