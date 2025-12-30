@@ -29,6 +29,8 @@ jobs:
 
       - name: Build site
         run: npm run build
+        env:
+          PREFIX_PATHS: 'true'
 
       - name: Verify build output
         run: |
