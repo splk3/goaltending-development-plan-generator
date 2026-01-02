@@ -223,7 +223,7 @@ export default function GeneratePlanButton() {
     try {
       if (documentType === 'gdoc') {
         await generateHTMLDocument()
-      } else {
+      } else if (documentType === 'docx') {
         // Optimize image
         const optimizedImageBlob = await optimizeImage(selectedImage)
         const arrayBuffer = await optimizedImageBlob.arrayBuffer()
