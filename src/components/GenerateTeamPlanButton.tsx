@@ -50,7 +50,7 @@ export default function GenerateTeamPlanButton() {
     }
 
     if (!skillLevel) {
-      alert('Please select an experience level')
+      alert('Please select a skill level')
       return false
     }
 
@@ -59,8 +59,14 @@ export default function GenerateTeamPlanButton() {
       return false
     }
 
+    // Check if input contains decimal point or is not a valid integer
+    if (numberOfPractices.includes('.') || numberOfPractices.includes(',')) {
+      alert('Number of practices must be a whole number between 0 and 50')
+      return false
+    }
+
     const practicesNum = parseInt(numberOfPractices, 10)
-    if (isNaN(practicesNum) || practicesNum < 0 || practicesNum > 50) {
+    if (isNaN(practicesNum) || practicesNum < 0 || practicesNum > 50 || practicesNum.toString() !== numberOfPractices.trim()) {
       alert('Number of practices must be a whole number between 0 and 50')
       return false
     }
@@ -89,7 +95,16 @@ export default function GenerateTeamPlanButton() {
       if (selectedImage && imagePreview) {
         try {
           const imgData = imagePreview
-          doc.addImage(imgData, 'JPEG', 65, 55, 80, 80)
+          // Detect image format from the data URL or file type
+          let format = 'JPEG' // default
+          if (selectedImage.type === 'image/png') {
+            format = 'PNG'
+          } else if (selectedImage.type === 'image/jpeg' || selectedImage.type === 'image/jpg') {
+            format = 'JPEG'
+          } else if (selectedImage.type === 'image/webp') {
+            format = 'WEBP'
+          }
+          doc.addImage(imgData, format, 65, 55, 80, 80)
         } catch (error) {
           console.error('Error adding image to PDF:', error)
         }
@@ -201,10 +216,18 @@ export default function GenerateTeamPlanButton() {
 
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-md w-full shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div 
+            className="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-md w-full shadow-2xl max-h-[90vh] overflow-y-auto"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="team-plan-modal-title"
+          >
             <div className="flex items-center gap-4 mb-6">
               <Logo variant="alt" format="png" width={80} height={80} className="dark-mode-aware" />
-              <h2 className="text-2xl font-bold text-usa-blue dark:text-blue-400">
+              <h2 
+                id="team-plan-modal-title"
+                className="text-2xl font-bold text-usa-blue dark:text-blue-400"
+              >
                 Generate Team Plan
               </h2>
             </div>
@@ -267,7 +290,7 @@ export default function GenerateTeamPlanButton() {
 
             <div className="mb-4">
               <label htmlFor="skillLevel" className="block text-gray-700 dark:text-gray-300 font-semibold mb-2">
-                Experience Level
+                Skill Level
               </label>
               <select
                 id="skillLevel"
@@ -275,7 +298,7 @@ export default function GenerateTeamPlanButton() {
                 onChange={(e) => setSkillLevel(e.target.value)}
                 className="w-full px-4 py-2 border-2 border-usa-blue dark:border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-usa-blue dark:bg-gray-700 dark:text-white"
               >
-                <option value="">Select experience level</option>
+                <option value="">Select skill level</option>
                 {skillLevels.map((level) => (
                   <option key={level} value={level}>
                     {level.charAt(0).toUpperCase() + level.slice(1)}
@@ -321,7 +344,9 @@ export default function GenerateTeamPlanButton() {
                   setNumberOfPractices("")
                 }}
                 disabled={isGenerating}
-                className="flex-1 bg-gray-400 hover:bg-gray-500 dark:bg-gray-600 dark:hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+                className={`flex-1 bg-gray-400 hover:bg-gray-500 dark:bg-gray-600 dark:hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-colors ${
+                  isGenerating ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
               >
                 Cancel
               </button>
