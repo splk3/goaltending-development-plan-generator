@@ -1,5 +1,6 @@
 import * as React from "react"
 import { jsPDF } from "jspdf"
+import { withPrefix } from "gatsby"
 import Logo from "./Logo"
 
 export default function GoalieJournalButton() {
@@ -9,15 +10,26 @@ export default function GoalieJournalButton() {
   const [selectedLogo, setSelectedLogo] = React.useState<File | null>(null)
   const [logoPreview, setLogoPreview] = React.useState<string | null>(null)
   const [isGenerating, setIsGenerating] = React.useState<boolean>(false)
+  const [validationError, setValidationError] = React.useState<string>("")
 
   const handleLogoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
       // Validate file type
       if (!file.type.startsWith('image/')) {
-        alert('Please select an image file')
+        setValidationError('Please select an image file')
         return
       }
+
+      // Validate file size (max 5MB)
+      const maxSize = 5 * 1024 * 1024 // 5MB in bytes
+      if (file.size > maxSize) {
+        setValidationError('Image file size must be less than 5MB')
+        return
+      }
+
+      // Clear any previous errors
+      setValidationError('')
 
       // Create preview
       const reader = new FileReader()
@@ -32,43 +44,47 @@ export default function GoalieJournalButton() {
 
   const getLogoAsBase64 = (): Promise<string | null> => {
     return new Promise((resolve) => {
-      if (selectedLogo) {
-        const reader = new FileReader()
-        reader.onloadend = () => {
-          resolve(reader.result as string)
-        }
-        reader.readAsDataURL(selectedLogo)
-      } else {
-        // Use default Goalie Gen logo
-        const img = new Image()
-        img.crossOrigin = "anonymous"
-        img.onload = () => {
-          const canvas = document.createElement('canvas')
-          canvas.width = img.width
-          canvas.height = img.height
-          const ctx = canvas.getContext('2d')
-          if (ctx) {
-            ctx.drawImage(img, 0, 0)
-            resolve(canvas.toDataURL('image/png'))
-          } else {
-            resolve(null)
-          }
-        }
-        img.onerror = () => resolve(null)
-        // Use the alt light logo as default
-        img.src = '/images/logo-alt-light.png'
+      if (logoPreview) {
+        // Reuse the already loaded logo preview data URL
+        resolve(logoPreview)
+        return
       }
+
+      // Use default Goalie Gen logo
+      const img = new Image()
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        canvas.width = img.width
+        canvas.height = img.height
+        const ctx = canvas.getContext('2d')
+        if (ctx) {
+          ctx.drawImage(img, 0, 0)
+          resolve(canvas.toDataURL('image/png'))
+        } else {
+          console.error("GoalieJournalButton: Failed to obtain 2D canvas context for default logo. The journal will be generated without a logo.")
+          resolve(null)
+        }
+      }
+      img.onerror = () => {
+        console.warn("GoalieJournalButton: Failed to load default logo. The journal will be generated without a logo.")
+        resolve(null)
+      }
+      // Use the alt light logo as default with proper path prefix
+      img.src = withPrefix('/images/logo-alt-light.png')
     })
   }
 
   const generateJournal = async () => {
+    // Clear any previous errors
+    setValidationError('')
+
     if (!goalieName.trim()) {
-      alert('Please enter a goalie name')
+      setValidationError('Please enter a goalie name')
       return
     }
 
     if (!teamName.trim()) {
-      alert('Please enter a team name')
+      setValidationError('Please enter a team name')
       return
     }
 
@@ -184,7 +200,12 @@ export default function GoalieJournalButton() {
       }
 
       // Save the PDF
-      const fileName = `${goalieName.replace(/[<>:"/\\|?*]/g, '_')}_Goalie_Journal_${season}.pdf`
+      const sanitizedName = goalieName
+        .replace(/[<>:"/\\|?*]+/g, '_') // Replace invalid characters
+        .replace(/^\.+|\.+$/g, '') // Remove leading/trailing periods
+        .replace(/\s+/g, '_') // Replace spaces with underscores
+        .trim() || 'Goalie' // Fallback if empty after sanitization
+      const fileName = `${sanitizedName}_Goalie_Journal_${season}.pdf`
       doc.save(fileName)
 
       // Close modal and reset form
@@ -193,13 +214,33 @@ export default function GoalieJournalButton() {
       setTeamName("")
       setSelectedLogo(null)
       setLogoPreview(null)
+      setValidationError('')
     } catch (error) {
       console.error('Error generating journal:', error)
-      alert('There was an error generating the journal. Please try again.')
+      setValidationError('There was an error generating the journal. Please try again.')
     } finally {
       setIsGenerating(false)
     }
   }
+
+  // Close modal when Escape key is pressed
+  React.useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && showModal && !isGenerating) {
+        setShowModal(false)
+        setGoalieName("")
+        setTeamName("")
+        setSelectedLogo(null)
+        setLogoPreview(null)
+        setValidationError('')
+      }
+    }
+
+    if (showModal) {
+      document.addEventListener('keydown', handleEscape)
+      return () => document.removeEventListener('keydown', handleEscape)
+    }
+  }, [showModal, isGenerating])
 
   return (
     <>
@@ -211,12 +252,25 @@ export default function GoalieJournalButton() {
       </button>
 
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+          onClick={() => {
+            if (!isGenerating) {
+              setShowModal(false)
+              setGoalieName("")
+              setTeamName("")
+              setSelectedLogo(null)
+              setLogoPreview(null)
+              setValidationError('')
+            }
+          }}
+        >
           <div 
             className="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-md w-full shadow-2xl max-h-[90vh] overflow-y-auto"
             role="dialog"
             aria-modal="true"
             aria-labelledby="journal-modal-title"
+            onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-center gap-4 mb-6">
               <Logo variant="alt" format="png" width={80} height={80} className="dark-mode-aware" />
@@ -272,8 +326,7 @@ export default function GoalieJournalButton() {
                   <img
                     src={logoPreview}
                     alt="Logo Preview"
-                    className="max-w-full h-auto rounded-lg border-2 border-gray-300 dark:border-gray-600"
-                    style={{ maxHeight: '150px', maxWidth: '150px' }}
+                    className="max-w-[150px] max-h-[150px] h-auto rounded-lg border-2 border-gray-300 dark:border-gray-600"
                   />
                 </div>
               )}
@@ -283,6 +336,12 @@ export default function GoalieJournalButton() {
                 </p>
               )}
             </div>
+
+            {validationError && (
+              <div className="mb-4 p-3 bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-200 rounded-lg text-sm">
+                {validationError}
+              </div>
+            )}
 
             <div className="flex gap-4">
               <button
