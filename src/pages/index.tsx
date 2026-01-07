@@ -5,6 +5,8 @@ import DarkModeToggle from "../components/DarkModeToggle"
 import GeneratePlanButton from "../components/GeneratePlanButton"
 import GenerateTeamPlanButton from "../components/GenerateTeamPlanButton"
 import DownloadDrillButton from "../components/DownloadDrillButton"
+import DownloadMaterialButton from "../components/DownloadMaterialButton"
+import GoalieJournalButton from "../components/GoalieJournalButton"
 
 export default function Home() {
   return (
@@ -34,7 +36,7 @@ export default function Home() {
           </div>
         </div>
         
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-3 gap-6">
           <div className="border-2 border-usa-blue dark:border-blue-400 p-6 rounded-lg bg-white dark:bg-gray-800 transition-colors">
             <h3 className="text-2xl font-bold text-usa-blue dark:text-blue-400 mb-3">Customized Plans</h3>
             <p className="text-gray-700 dark:text-gray-300 mb-4">
@@ -53,6 +55,28 @@ export default function Home() {
             </p>
             <div className="flex justify-center">
               <DownloadDrillButton />
+            </div>
+          </div>
+          
+          <div className="border-2 border-usa-blue dark:border-blue-400 p-6 rounded-lg bg-white dark:bg-gray-800 transition-colors">
+            <h3 className="text-2xl font-bold text-usa-blue dark:text-blue-400 mb-3">Additional Materials</h3>
+            <p className="text-gray-700 dark:text-gray-300 mb-4">
+              Download useful forms and tools for goaltender development and tracking.
+            </p>
+            <div className="space-y-3">
+              <DownloadMaterialButton 
+                title="Goalie Evaluation Form" 
+                fileName="goalie-evaluation-form.pdf" 
+              />
+              <DownloadMaterialButton 
+                title="Single-Game Review Form" 
+                fileName="goalie-single-game-review.pdf" 
+              />
+              <DownloadMaterialButton 
+                title="Coach Z's Zone Map" 
+                fileName="coach-z-zone-map.pdf" 
+              />
+              <GoalieJournalButton />
             </div>
           </div>
         </div>

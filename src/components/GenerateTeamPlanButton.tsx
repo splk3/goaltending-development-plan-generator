@@ -14,6 +14,7 @@ export default function GenerateTeamPlanButton() {
   const [skillLevel, setSkillLevel] = React.useState<string>("")
   const [numberOfPractices, setNumberOfPractices] = React.useState<string>("")
   const [isGenerating, setIsGenerating] = React.useState<boolean>(false)
+  const [validationError, setValidationError] = React.useState<string>("")
 
   const ageGroups: AgeGroup[] = ["8u", "10u", "12u", "14u+"]
   const skillLevels: SkillLevel[] = ["beginner", "intermediate", "advanced"]
@@ -23,9 +24,19 @@ export default function GenerateTeamPlanButton() {
     if (file) {
       // Validate file type
       if (!file.type.startsWith('image/')) {
-        alert('Please select an image file')
+        setValidationError('Please select an image file')
         return
       }
+
+      // Validate file size (max 5MB)
+      const maxSize = 5 * 1024 * 1024 // 5MB in bytes
+      if (file.size > maxSize) {
+        setValidationError('Image file size must be less than 5MB')
+        return
+      }
+
+      // Clear any previous errors
+      setValidationError('')
 
       // Create preview
       const reader = new FileReader()
@@ -39,35 +50,38 @@ export default function GenerateTeamPlanButton() {
   }
 
   const validateInputs = (): boolean => {
+    // Clear any previous errors
+    setValidationError('')
+
     if (!teamName.trim()) {
-      alert('Please enter a team name')
+      setValidationError('Please enter a team name')
       return false
     }
 
     if (!ageGroup) {
-      alert('Please select an age group')
+      setValidationError('Please select an age group')
       return false
     }
 
     if (!skillLevel) {
-      alert('Please select a skill level')
+      setValidationError('Please select a skill level')
       return false
     }
 
     if (!numberOfPractices.trim()) {
-      alert('Please enter the number of practices')
+      setValidationError('Please enter the number of practices')
       return false
     }
 
     // Check if input contains decimal point or is not a valid integer
     if (numberOfPractices.includes('.') || numberOfPractices.includes(',')) {
-      alert('Number of practices must be a whole number between 0 and 50')
+      setValidationError('Number of practices must be a whole number between 0 and 50')
       return false
     }
 
     const practicesNum = parseInt(numberOfPractices, 10)
     if (isNaN(practicesNum) || practicesNum < 0 || practicesNum > 50 || practicesNum.toString() !== numberOfPractices.trim()) {
-      alert('Number of practices must be a whole number between 0 and 50')
+      setValidationError('Number of practices must be a whole number between 0 and 50')
       return false
     }
 
@@ -197,9 +211,10 @@ export default function GenerateTeamPlanButton() {
       setAgeGroup("")
       setSkillLevel("")
       setNumberOfPractices("")
+      setValidationError('')
     } catch (error) {
       console.error('Error generating PDF:', error)
-      alert('There was an error generating the PDF. Please try again.')
+      setValidationError('There was an error generating the PDF. Please try again.')
     } finally {
       setIsGenerating(false)
     }
@@ -323,6 +338,12 @@ export default function GenerateTeamPlanButton() {
               />
             </div>
 
+            {validationError && (
+              <div className="mb-4 p-3 bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-200 rounded-lg text-sm">
+                {validationError}
+              </div>
+            )}
+
             <div className="flex gap-4">
               <button
                 onClick={generatePDF}
@@ -342,6 +363,7 @@ export default function GenerateTeamPlanButton() {
                   setAgeGroup("")
                   setSkillLevel("")
                   setNumberOfPractices("")
+                  setValidationError('')
                 }}
                 disabled={isGenerating}
                 className={`flex-1 bg-gray-400 hover:bg-gray-500 dark:bg-gray-600 dark:hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-colors ${
