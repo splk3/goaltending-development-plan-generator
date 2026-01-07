@@ -71,7 +71,7 @@ export default function Home() {
                 fileName="goalie-single-game-review.pdf" 
               />
               <DownloadMaterialButton 
-                title='Coach Z\'s Zone Map' 
+                title="Coach Z's Zone Map" 
                 fileName="coach-z-zone-map.pdf" 
               />
               <GoalieJournalButton />
