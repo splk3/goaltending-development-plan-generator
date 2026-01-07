@@ -9,15 +9,26 @@ export default function GeneratePlanButton() {
   const [selectedImage, setSelectedImage] = React.useState<File | null>(null)
   const [imagePreview, setImagePreview] = React.useState<string | null>(null)
   const [isGenerating, setIsGenerating] = React.useState<boolean>(false)
+  const [validationError, setValidationError] = React.useState<string>("")
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
       // Validate file type
       if (!file.type.startsWith('image/')) {
-        alert('Please select an image file')
+        setValidationError('Please select an image file')
         return
       }
+
+      // Validate file size (max 5MB)
+      const maxSize = 5 * 1024 * 1024 // 5MB in bytes
+      if (file.size > maxSize) {
+        setValidationError('Image file size must be less than 5MB')
+        return
+      }
+
+      // Clear any previous errors
+      setValidationError('')
 
       // Create preview
       const reader = new FileReader()
@@ -94,13 +105,16 @@ export default function GeneratePlanButton() {
   }
 
   const generateDocument = async () => {
+    // Clear any previous errors
+    setValidationError('')
+
     if (!teamName.trim()) {
-      alert('Please enter a team name')
+      setValidationError('Please enter a team name')
       return
     }
 
     if (!selectedImage) {
-      alert('Please select an image')
+      setValidationError('Please select an image')
       return
     }
 
@@ -376,9 +390,10 @@ export default function GeneratePlanButton() {
       setTeamName("")
       setSelectedImage(null)
       setImagePreview(null)
+      setValidationError('')
     } catch (error) {
       console.error('Error generating document:', error)
-      alert('There was an error generating the document. Please try again.')
+      setValidationError('There was an error generating the document. Please try again.')
     } finally {
       setIsGenerating(false)
     }
@@ -440,6 +455,12 @@ export default function GeneratePlanButton() {
               )}
             </div>
 
+            {validationError && (
+              <div className="mb-4 p-3 bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-200 rounded-lg text-sm">
+                {validationError}
+              </div>
+            )}
+
             <div className="flex gap-4">
               <button
                 onClick={generateDocument}
@@ -456,6 +477,7 @@ export default function GeneratePlanButton() {
                   setTeamName("")
                   setSelectedImage(null)
                   setImagePreview(null)
+                  setValidationError('')
                 }}
                 disabled={isGenerating}
                 className="flex-1 bg-gray-400 hover:bg-gray-500 dark:bg-gray-600 dark:hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
