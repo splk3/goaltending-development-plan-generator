@@ -64,6 +64,7 @@ type AnalyticsParams =
  * // Track an individual plan generation
  * trackEvent('generate_plan', {
  *   type: 'individual',
+ *   team_name: 'Springfield Eagles U12',
  *   team_name_provided: true
  * });
  * 
