@@ -31,7 +31,7 @@ interface GenerateJournalParams {
 }
 
 interface DownloadDrillParams {
-  drill_name: string;
+  drill_name?: string;
   age_group: string;
   skill_level: string;
 }
