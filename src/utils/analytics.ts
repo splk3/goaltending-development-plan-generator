@@ -5,7 +5,7 @@ declare global {
     gtag?: (
       command: 'event' | 'config' | 'set' | 'get' | 'consent',
       action: string,
-      params?: Record<string, any>
+      params?: Record<string, unknown>
     ) => void;
   }
 }
@@ -54,6 +54,7 @@ type AnalyticsParams =
  * or logs them to the console in development mode when gtag is not loaded.
  * 
  * Uses function overloads to ensure type-safe parameter matching for each event type.
+ * Parameters are required when the interface defines required fields.
  * 
  * @param action - The type of event to track
  * @param params - Event-specific parameters that provide context about the user action
@@ -66,7 +67,7 @@ type AnalyticsParams =
  *   team_name_provided: true
  * });
  * 
- * // Track a drill download
+ * // Track a drill download (params required due to required fields)
  * trackEvent('download_drill', {
  *   drill_name: 'Butterfly Slides',
  *   age_group: 'U12',
@@ -76,8 +77,8 @@ type AnalyticsParams =
  */
 export function trackEvent(action: 'generate_plan', params?: GeneratePlanParams): void;
 export function trackEvent(action: 'generate_journal', params?: GenerateJournalParams): void;
-export function trackEvent(action: 'download_drill', params?: DownloadDrillParams): void;
-export function trackEvent(action: 'download_material', params?: DownloadMaterialParams): void;
+export function trackEvent(action: 'download_drill', params: DownloadDrillParams): void;
+export function trackEvent(action: 'download_material', params: DownloadMaterialParams): void;
 export function trackEvent(
   action: EventType,
   params?: AnalyticsParams
