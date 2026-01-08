@@ -3,7 +3,7 @@ export {};
 declare global {
   interface Window {
     gtag?: (
-      command: 'event' | 'config' | 'set' | 'get' | 'consent' | string,
+      command: 'event' | 'config' | 'set' | 'get' | 'consent',
       action: string,
       params?: Record<string, any>
     ) => void;
@@ -61,7 +61,7 @@ type AnalyticsParams =
  * // Track an individual plan generation
  * trackEvent('generate_plan', {
  *   type: 'individual',
- *   team_name: 'Hawks U12'
+ *   team_name_provided: true
  * });
  * 
  * // Track a drill download
