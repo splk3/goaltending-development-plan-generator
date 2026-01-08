@@ -9,11 +9,13 @@ This repository hosts a **GatsbyJS-based GitHub Pages website** designed to help
 ## Technology Stack
 
 - **Static Site Generator**: GatsbyJS 5
-- **Hosting**: GitHub Pages
+- **Hosting**: GitHub Pages with custom domain (dev.goaliegen.com / goaliegen.com)
+- **Language**: TypeScript (all config files and components use .ts/.tsx)
 - **Framework**: React 18
-- **Styling**: Tailwind CSS 3 (utility-first CSS framework)
+- **Styling**: Tailwind CSS 4 (utility-first CSS framework)
 - **Build Tool**: Gatsby with PostCSS
 - **Package Manager**: npm
+- **Document Generation**: jsPDF and docx libraries
 
 ## Repository Structure
 
@@ -22,15 +24,29 @@ This repository hosts a **GatsbyJS-based GitHub Pages website** designed to help
 The following files and directories are part of the repository:
 
 - `src/`: Source code directory
-  - `src/pages/`: Page components (auto-routed by Gatsby)
-  - `src/components/`: Reusable React components (if created)
+  - `src/pages/`: Page components (auto-routed by Gatsby) - TypeScript (.tsx)
+  - `src/components/`: Reusable React components (TypeScript .tsx files)
+    - Logo.tsx, SEO.tsx, DarkModeToggle.tsx
+    - GeneratePlanButton.tsx, GenerateTeamPlanButton.tsx
+    - GoalieJournalButton.tsx, DownloadDrillButton.tsx
+    - DownloadMaterialButton.tsx, TermsPopup.tsx
   - `src/styles/`: Global CSS styles
+  - `src/utils/`: Utility functions (e.g., analytics.ts)
 - `static/`: Static assets (copied to public folder as-is)
-- `gatsby-config.js`: Gatsby configuration file
-- `gatsby-browser.js`: Gatsby browser APIs
+  - `static/CNAME`: Custom domain configuration file
+  - `static/favicons/`: Site icons and favicons
+  - `static/images/`: Static images
+  - `static/pdfs/`: PDF resources
+- `gatsby-config.ts`: Gatsby configuration file (TypeScript)
+- `gatsby-browser.tsx`: Gatsby browser APIs (TypeScript)
+- `gatsby-ssr.tsx`: Gatsby SSR APIs (TypeScript)
 - `tailwind.config.js`: Tailwind CSS configuration
 - `postcss.config.js`: PostCSS configuration
+- `tsconfig.json`: TypeScript configuration
 - `package.json`: npm dependencies and scripts
+- `.env.development`: Development environment variables (GATSBY_SITE_URL)
+- `.env.production`: Production environment variables (GATSBY_SITE_URL)
+- `.env.example`: Example environment variable template
 - `.gitignore`: Configured for Gatsby (ignores `public/`, `.cache/`, `node_modules/`)
 
 ### Generated/Ignored Artifacts (Not Committed)
@@ -67,18 +83,21 @@ The following are created during development/build and excluded via `.gitignore`
 2. **GitHub Pages Deployment**:
    - Use `npm run build` to build the production site
    - Use `npm run deploy` to deploy to GitHub Pages
-   - Site is deployed to `https://splk3.github.io/goalie-gen/`
-   - Path prefix `/goalie-gen` is configured in `gatsby-config.js`
-   - GitHub Actions workflow may automate deployment
+   - Site uses custom domains: dev.goaliegen.com (dev) and goaliegen.com (prod)
+   - Custom domain configured in `static/CNAME` file
+   - No path prefix needed with custom domain setup
+   - GitHub Actions workflow automates deployment on push to main branch
 
 ### Code Style
 
 - Follow React and Gatsby best practices
+- Use TypeScript for all new code (files should use .ts or .tsx extensions)
 - Use functional components with hooks
 - Use Tailwind CSS utility classes for styling
 - Use semantic HTML for accessibility
 - Write descriptive commit messages
 - Keep components small and focused
+- Leverage TypeScript type safety
 
 ### Content Guidelines
 
@@ -97,11 +116,12 @@ The site uses USA national colors defined in `tailwind.config.js`:
 
 ### Adding New Features
 
-- Create new pages in `src/pages/` (auto-routed by Gatsby)
-- Add reusable components in `src/components/`
-- Use React functional components with JSX
+- Create new pages in `src/pages/` (auto-routed by Gatsby) using .tsx extension
+- Add reusable components in `src/components/` using .tsx extension
+- Use React functional components with TypeScript and JSX
 - Import and use Tailwind CSS classes for styling
 - Use Gatsby's `<Link>` component for internal navigation
+- Leverage TypeScript for type safety and better IDE support
 
 ### Styling Changes
 
@@ -147,8 +167,13 @@ This repository uses GitHub Actions for automation:
 2. **Deploy to GitHub Pages** (`deploy.yml`):
    - Automatically deploys on push to `main` branch
    - Builds the site with `npm run build`
-   - Deploys to GitHub Pages using upload-pages-artifact
+   - Deploys to GitHub Pages using upload-pages-artifact action
    - Uses Node.js 20 with npm caching
+   - Deploys to custom domain configured in static/CNAME
+
+3. **Test Build** (`test-build.yml`):
+   - Tests that the site builds successfully
+   - Runs on pull requests, manual triggers, and weekly schedule
 
 ## JAMstack Architecture & Static Hosting Requirements
 
@@ -291,7 +316,10 @@ Before Copilot submits a PR for review, it MUST:
 
 - **Never commit** build artifacts (`public/`, `.cache/`)
 - **Never commit** `node_modules/` directory
-- The path prefix `/goalie-gen` is required for GitHub Pages deployment
+- **Always use TypeScript** - new files should use .ts or .tsx extensions
+- Custom domain eliminates need for path prefix in gatsby-config.ts
+- Site URL is set via GATSBY_SITE_URL environment variable
+- Custom domain is configured in `static/CNAME` file
 - Gatsby automatically optimizes images and assets for performance
 - Keep the site lightweight and fast-loading for youth sports teams
 - Use Gatsby's built-in optimizations (code splitting, prefetching, etc.)
@@ -315,22 +343,24 @@ Before Copilot submits a PR for review, it MUST:
 - Use `require()` for static assets (use `import` instead)
 - Forget to test production builds before submitting PR
 - Skip the `npm run build` validation step
+- Use .js or .jsx extensions for new files (use .ts or .tsx)
 
 ### ✅ Correct Patterns for Static Sites
 
 **DO use:**
 - Static Site Generation (SSG) at build time
-- Client-side React components and hooks
+- Client-side React components and hooks (TypeScript/TSX)
 - Browser APIs (localStorage, sessionStorage, fetch)
-- CSS/Tailwind for styling
+- Tailwind CSS for styling
 - Client-side form handling
 - Third-party APIs called from the browser
 - Gatsby Link for navigation
+- TypeScript for type safety
 
 ### Example: Correct vs. Incorrect
 
 ❌ **INCORRECT** (Server-side - will break):
-```javascript
+```typescript
 // This will NOT work on GitHub Pages
 export async function getServerData() {
   const data = await fetchFromDatabase()
@@ -339,10 +369,18 @@ export async function getServerData() {
 ```
 
 ✅ **CORRECT** (Client-side - will work):
-```javascript
+```typescript
 // This WILL work on GitHub Pages
+import React from 'react'
+
+interface DataType {
+  // Define your data structure
+  id: string
+  name: string
+}
+
 export default function Component() {
-  const [data, setData] = React.useState(null)
+  const [data, setData] = React.useState<DataType | null>(null)
   
   React.useEffect(() => {
     fetch('https://api.example.com/data')
