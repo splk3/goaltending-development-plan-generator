@@ -373,8 +373,14 @@ export async function getServerData() {
 // This WILL work on GitHub Pages
 import React from 'react'
 
+interface DataType {
+  // Define your data structure
+  id: string
+  name: string
+}
+
 export default function Component() {
-  const [data, setData] = React.useState<any>(null)
+  const [data, setData] = React.useState<DataType | null>(null)
   
   React.useEffect(() => {
     fetch('https://api.example.com/data')

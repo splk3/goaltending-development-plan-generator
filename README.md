@@ -26,7 +26,7 @@ Goalie Gen (Goaltending Development Plan Generator) makes it easy for youth ice 
 - **TypeScript** - Strongly typed programming language that builds on JavaScript
 - **Tailwind CSS 4** - Utility-first CSS framework
 - **React 18** - JavaScript library for building user interfaces
-- **PDF/Document Generation** - jsPDF and docx libraries for exporting plans
+- **PDF/Document Generation** - jsPDF and docx libraries for exporting development plans
 
 ## 🎨 Design
 
