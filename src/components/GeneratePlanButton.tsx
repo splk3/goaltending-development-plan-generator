@@ -389,7 +389,7 @@ export default function GeneratePlanButton() {
       // Track event
       trackEvent('generate_plan', {
         type: 'individual',
-        team_name_provided: !!teamName, // Avoid tracking actual PII if uncertain, though team name is generally fine. Plan says "team_name" but user said "no PII". Team names are borderline but usually safe. User asked to track "options chosen". Team name IS an input. I will track length to be safe or just that it was provided as per recent thought? Re-reading plan: "Data Tracked: type: 'individual', team_name (length/status)". Let's track the actual team name as it's not PII like a person's name. Actually, plan says "I will track the name as requested".
+        team_name_provided: !!teamName, // Track whether a team name was provided
         team_name: teamName
       })
 
