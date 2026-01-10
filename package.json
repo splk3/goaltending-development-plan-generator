@@ -41,9 +41,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/splk3/goaltending-development-plan-generator"
+    "url": "https://github.com/splk3/goalie-gen"
   },
   "bugs": {
-    "url": "https://github.com/splk3/goaltending-development-plan-generator/issues"
+    "url": "https://github.com/splk3/goalie-gen/issues"
   }
 }
