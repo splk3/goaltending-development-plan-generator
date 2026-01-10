@@ -16,6 +16,8 @@ export default function GenerateTeamPlanButton() {
   const [numberOfPractices, setNumberOfPractices] = React.useState<string>("")
   const [isGenerating, setIsGenerating] = React.useState<boolean>(false)
   const [validationError, setValidationError] = React.useState<string>("")
+  const [generatedBlob, setGeneratedBlob] = React.useState<Blob | null>(null)
+  const [generatedFileName, setGeneratedFileName] = React.useState<string>("")
 
   const ageGroups: AgeGroup[] = ["8u", "10u", "12u", "14u+"]
   const skillLevels: SkillLevel[] = ["beginner", "intermediate", "advanced"]
@@ -200,9 +202,13 @@ export default function GenerateTeamPlanButton() {
       doc.text("Monitor goaltender development throughout the season. Regular feedback", 25, 43)
       doc.text("and positive reinforcement are crucial for youth player development.", 25, 50)
       
-      // Save the PDF
+      // Generate PDF blob
       const fileName = `${teamName.replace(/[<>:"/\\|?*]/g, '_')}_Team_Development_Plan.pdf`
-      doc.save(fileName)
+      const blob = doc.output('blob')
+      
+      // Store the blob and filename for download
+      setGeneratedBlob(blob)
+      setGeneratedFileName(fileName)
 
       // Track event
       trackEvent('generate_plan', {
@@ -211,6 +217,31 @@ export default function GenerateTeamPlanButton() {
         age_group: ageGroup,
         skill_level: skillLevel,
         practices_count: practicesNum
+      })
+    } catch (error) {
+      console.error('Error generating PDF:', error)
+      setValidationError('There was an error generating the PDF. Please try again.')
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
+  const handleDownload = () => {
+    if (generatedBlob && generatedFileName) {
+      // Create download link
+      const url = URL.createObjectURL(generatedBlob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = generatedFileName
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+      
+      // Track download event
+      trackEvent('download_plan', {
+        type: 'team',
+        team_name: teamName
       })
       
       // Close modal and reset form
@@ -222,12 +253,22 @@ export default function GenerateTeamPlanButton() {
       setSkillLevel("")
       setNumberOfPractices("")
       setValidationError('')
-    } catch (error) {
-      console.error('Error generating PDF:', error)
-      setValidationError('There was an error generating the PDF. Please try again.')
-    } finally {
-      setIsGenerating(false)
+      setGeneratedBlob(null)
+      setGeneratedFileName("")
     }
+  }
+
+  const handleCancel = () => {
+    setShowModal(false)
+    setTeamName("")
+    setSelectedImage(null)
+    setImagePreview(null)
+    setAgeGroup("")
+    setSkillLevel("")
+    setNumberOfPractices("")
+    setValidationError('')
+    setGeneratedBlob(null)
+    setGeneratedFileName("")
   }
 
   return (
@@ -266,7 +307,8 @@ export default function GenerateTeamPlanButton() {
                 id="teamName"
                 value={teamName}
                 onChange={(e) => setTeamName(e.target.value)}
-                className="w-full px-4 py-2 border-2 border-usa-blue dark:border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-usa-blue dark:bg-gray-700 dark:text-white"
+                disabled={!!generatedBlob}
+                className="w-full px-4 py-2 border-2 border-usa-blue dark:border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-usa-blue dark:bg-gray-700 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
                 placeholder="Enter your team name"
               />
             </div>
@@ -280,7 +322,8 @@ export default function GenerateTeamPlanButton() {
                 id="teamImage"
                 accept="image/*"
                 onChange={handleImageChange}
-                className="w-full px-4 py-2 border-2 border-usa-blue dark:border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-usa-blue dark:bg-gray-700 dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-usa-blue file:text-white hover:file:bg-blue-900 dark:file:bg-blue-600 dark:hover:file:bg-blue-700"
+                disabled={!!generatedBlob}
+                className="w-full px-4 py-2 border-2 border-usa-blue dark:border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-usa-blue dark:bg-gray-700 dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-usa-blue file:text-white hover:file:bg-blue-900 dark:file:bg-blue-600 dark:hover:file:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               />
               {imagePreview && (
                 <div className="mt-4">
@@ -302,7 +345,8 @@ export default function GenerateTeamPlanButton() {
                 id="ageGroup"
                 value={ageGroup}
                 onChange={(e) => setAgeGroup(e.target.value)}
-                className="w-full px-4 py-2 border-2 border-usa-blue dark:border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-usa-blue dark:bg-gray-700 dark:text-white"
+                disabled={!!generatedBlob}
+                className="w-full px-4 py-2 border-2 border-usa-blue dark:border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-usa-blue dark:bg-gray-700 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <option value="">Select age group</option>
                 {ageGroups.map((age) => (
@@ -321,7 +365,8 @@ export default function GenerateTeamPlanButton() {
                 id="skillLevel"
                 value={skillLevel}
                 onChange={(e) => setSkillLevel(e.target.value)}
-                className="w-full px-4 py-2 border-2 border-usa-blue dark:border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-usa-blue dark:bg-gray-700 dark:text-white"
+                disabled={!!generatedBlob}
+                className="w-full px-4 py-2 border-2 border-usa-blue dark:border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-usa-blue dark:bg-gray-700 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <option value="">Select skill level</option>
                 {skillLevels.map((level) => (
@@ -343,7 +388,8 @@ export default function GenerateTeamPlanButton() {
                 onChange={(e) => setNumberOfPractices(e.target.value)}
                 min="0"
                 max="50"
-                className="w-full px-4 py-2 border-2 border-usa-blue dark:border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-usa-blue dark:bg-gray-700 dark:text-white"
+                disabled={!!generatedBlob}
+                className="w-full px-4 py-2 border-2 border-usa-blue dark:border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-usa-blue dark:bg-gray-700 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
                 placeholder="Enter number (0-50)"
               />
             </div>
@@ -354,34 +400,50 @@ export default function GenerateTeamPlanButton() {
               </div>
             )}
 
+            {generatedBlob && !validationError && (
+              <div className="mb-4 p-3 bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-600 text-green-700 dark:text-green-200 rounded-lg text-sm">
+                PDF generated successfully! Click Download to save it.
+              </div>
+            )}
+
             <div className="flex gap-4">
-              <button
-                onClick={generatePDF}
-                disabled={isGenerating}
-                className={`flex-1 bg-usa-blue hover:bg-blue-900 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors ${
-                  isGenerating ? 'opacity-50 cursor-not-allowed' : ''
-                }`}
-              >
-                {isGenerating ? 'Generating...' : 'Generate'}
-              </button>
-              <button
-                onClick={() => {
-                  setShowModal(false)
-                  setTeamName("")
-                  setSelectedImage(null)
-                  setImagePreview(null)
-                  setAgeGroup("")
-                  setSkillLevel("")
-                  setNumberOfPractices("")
-                  setValidationError('')
-                }}
-                disabled={isGenerating}
-                className={`flex-1 bg-gray-400 hover:bg-gray-500 dark:bg-gray-600 dark:hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-colors ${
-                  isGenerating ? 'opacity-50 cursor-not-allowed' : ''
-                }`}
-              >
-                Cancel
-              </button>
+              {!generatedBlob ? (
+                <>
+                  <button
+                    onClick={generatePDF}
+                    disabled={isGenerating}
+                    className={`flex-1 bg-usa-blue hover:bg-blue-900 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors ${
+                      isGenerating ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                  >
+                    {isGenerating ? 'Generating...' : 'Generate'}
+                  </button>
+                  <button
+                    onClick={handleCancel}
+                    disabled={isGenerating}
+                    className={`flex-1 bg-gray-400 hover:bg-gray-500 dark:bg-gray-600 dark:hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-colors ${
+                      isGenerating ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={handleDownload}
+                    className="flex-1 bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+                  >
+                    Download
+                  </button>
+                  <button
+                    onClick={handleCancel}
+                    className="flex-1 bg-gray-400 hover:bg-gray-500 dark:bg-gray-600 dark:hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+                  >
+                    Close
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
