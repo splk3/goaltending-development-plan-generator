@@ -48,6 +48,8 @@ The following files and directories are part of the repository:
 - `.env.production`: Production environment variables (GATSBY_SITE_URL)
 - `.env.example`: Example environment variable template
 - `.gitignore`: Configured for Gatsby (ignores `public/`, `.cache/`, `node_modules/`)
+- `.github/CODEOWNERS`: Defines code ownership (@splk3 as default owner)
+- `.github/dependabot.yml`: Automated dependency updates configuration
 
 ### Generated/Ignored Artifacts (Not Committed)
 
@@ -174,6 +176,13 @@ This repository uses GitHub Actions for automation:
 3. **Test Build** (`test-build.yml`):
    - Tests that the site builds successfully
    - Runs on pull requests, manual triggers, and weekly schedule
+   - Executes `npm install` and `npm run build` to verify build process
+
+4. **Release Prep** (`release-prep.yml`):
+   - Triggers on manual workflow dispatch or on release creation (filtered to prereleases by tag suffix)
+   - Automatically creates GitHub issues for documentation updates
+   - Creates issues titled "update README and copilot instructions"
+   - Helps maintain documentation currency after releases
 
 ## JAMstack Architecture & Static Hosting Requirements
 
@@ -317,12 +326,15 @@ Before Copilot submits a PR for review, it MUST:
 - **Never commit** build artifacts (`public/`, `.cache/`)
 - **Never commit** `node_modules/` directory
 - **Always use TypeScript** - new files should use .ts or .tsx extensions
+- **Repository URL**: `https://github.com/splk3/goalie-gen` (ensure package.json uses correct URL)
 - Custom domain eliminates need for path prefix in gatsby-config.ts
 - Site URL is set via GATSBY_SITE_URL environment variable
 - Custom domain is configured in `static/CNAME` file
 - Gatsby automatically optimizes images and assets for performance
 - Keep the site lightweight and fast-loading for youth sports teams
 - Use Gatsby's built-in optimizations (code splitting, prefetching, etc.)
+- CODEOWNERS file designates @splk3 as the default code owner
+- Dependabot automatically checks for npm and GitHub Actions updates weekly
 
 ## Common Pitfalls to Avoid
 
