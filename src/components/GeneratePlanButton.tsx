@@ -11,6 +11,8 @@ export default function GeneratePlanButton() {
   const [imagePreview, setImagePreview] = React.useState<string | null>(null)
   const [isGenerating, setIsGenerating] = React.useState<boolean>(false)
   const [validationError, setValidationError] = React.useState<string>("")
+  const [generatedBlob, setGeneratedBlob] = React.useState<Blob | null>(null)
+  const [generatedFileName, setGeneratedFileName] = React.useState<string>("")
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -380,11 +382,14 @@ export default function GeneratePlanButton() {
         }],
       })
 
-      // Generate and save document
+      // Generate document blob
       const blob = await Packer.toBlob(doc)
       // Sanitize filename by removing only characters that are invalid in file systems
       const fileName = `${teamName.replace(/[<>:"/\\|?*]/g, '_')}_Goaltending_Development_Plan.docx`
-      saveAs(blob, fileName)
+      
+      // Store the blob and filename for download
+      setGeneratedBlob(blob)
+      setGeneratedFileName(fileName)
 
       // Track event
       trackEvent('generate_plan', {
@@ -392,19 +397,43 @@ export default function GeneratePlanButton() {
         team_name_provided: !!teamName, // Track whether a team name was provided
         team_name: teamName
       })
-
-      // Close modal and reset form
-      setShowModal(false)
-      setTeamName("")
-      setSelectedImage(null)
-      setImagePreview(null)
-      setValidationError('')
     } catch (error) {
       console.error('Error generating document:', error)
       setValidationError('There was an error generating the document. Please try again.')
     } finally {
       setIsGenerating(false)
     }
+  }
+
+  const handleDownload = () => {
+    if (generatedBlob && generatedFileName) {
+      saveAs(generatedBlob, generatedFileName)
+      
+      // Track download event
+      trackEvent('download_plan', {
+        type: 'individual',
+        team_name: teamName
+      })
+      
+      // Close modal and reset form
+      setShowModal(false)
+      setTeamName("")
+      setSelectedImage(null)
+      setImagePreview(null)
+      setValidationError('')
+      setGeneratedBlob(null)
+      setGeneratedFileName("")
+    }
+  }
+
+  const handleCancel = () => {
+    setShowModal(false)
+    setTeamName("")
+    setSelectedImage(null)
+    setImagePreview(null)
+    setValidationError('')
+    setGeneratedBlob(null)
+    setGeneratedFileName("")
   }
 
   return (
@@ -435,7 +464,8 @@ export default function GeneratePlanButton() {
                 id="teamName"
                 value={teamName}
                 onChange={(e) => setTeamName(e.target.value)}
-                className="w-full px-4 py-2 border-2 border-usa-blue dark:border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-usa-blue dark:bg-gray-700 dark:text-white"
+                disabled={!!generatedBlob}
+                className="w-full px-4 py-2 border-2 border-usa-blue dark:border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-usa-blue dark:bg-gray-700 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
                 placeholder="Enter your team name"
               />
             </div>
@@ -449,7 +479,8 @@ export default function GeneratePlanButton() {
                 id="teamImage"
                 accept="image/*"
                 onChange={handleImageChange}
-                className="w-full px-4 py-2 border-2 border-usa-blue dark:border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-usa-blue dark:bg-gray-700 dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-usa-blue file:text-white hover:file:bg-blue-900 dark:file:bg-blue-600 dark:hover:file:bg-blue-700"
+                disabled={!!generatedBlob}
+                className="w-full px-4 py-2 border-2 border-usa-blue dark:border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-usa-blue dark:bg-gray-700 dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-usa-blue file:text-white hover:file:bg-blue-900 dark:file:bg-blue-600 dark:hover:file:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               />
               {imagePreview && (
                 <div className="mt-4">
@@ -469,29 +500,48 @@ export default function GeneratePlanButton() {
               </div>
             )}
 
+            {generatedBlob && !validationError && (
+              <div className="mb-4 p-3 bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-600 text-green-700 dark:text-green-200 rounded-lg text-sm">
+                Document generated successfully! Click Download to save it.
+              </div>
+            )}
+
             <div className="flex gap-4">
-              <button
-                onClick={generateDocument}
-                disabled={isGenerating}
-                className={`flex-1 bg-usa-blue hover:bg-blue-900 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors ${
-                  isGenerating ? 'opacity-50 cursor-not-allowed' : ''
-                }`}
-              >
-                {isGenerating ? 'Generating...' : 'Generate'}
-              </button>
-              <button
-                onClick={() => {
-                  setShowModal(false)
-                  setTeamName("")
-                  setSelectedImage(null)
-                  setImagePreview(null)
-                  setValidationError('')
-                }}
-                disabled={isGenerating}
-                className="flex-1 bg-gray-400 hover:bg-gray-500 dark:bg-gray-600 dark:hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
-              >
-                Cancel
-              </button>
+              {!generatedBlob ? (
+                <>
+                  <button
+                    onClick={generateDocument}
+                    disabled={isGenerating}
+                    className={`flex-1 bg-usa-blue hover:bg-blue-900 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors ${
+                      isGenerating ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                  >
+                    {isGenerating ? 'Generating...' : 'Generate'}
+                  </button>
+                  <button
+                    onClick={handleCancel}
+                    disabled={isGenerating}
+                    className="flex-1 bg-gray-400 hover:bg-gray-500 dark:bg-gray-600 dark:hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={handleDownload}
+                    className="flex-1 bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+                  >
+                    Download
+                  </button>
+                  <button
+                    onClick={handleCancel}
+                    className="flex-1 bg-gray-400 hover:bg-gray-500 dark:bg-gray-600 dark:hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+                  >
+                    Close
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

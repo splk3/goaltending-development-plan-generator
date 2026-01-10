@@ -12,6 +12,8 @@ export default function GoalieJournalButton() {
   const [logoPreview, setLogoPreview] = React.useState<string | null>(null)
   const [isGenerating, setIsGenerating] = React.useState<boolean>(false)
   const [validationError, setValidationError] = React.useState<string>("")
+  const [generatedBlob, setGeneratedBlob] = React.useState<Blob | null>(null)
+  const [generatedFileName, setGeneratedFileName] = React.useState<string>("")
 
   const handleLogoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -200,27 +202,23 @@ export default function GoalieJournalButton() {
         doc.line(20, 245 + (i * 15), 190, 245 + (i * 15))
       }
 
-      // Save the PDF
+      // Generate PDF blob
       const sanitizedName = goalieName
         .replace(/[<>:"/\\|?*]+/g, '_') // Replace invalid characters
         .replace(/^\.+|\.+$/g, '') // Remove leading/trailing periods
         .replace(/\s+/g, '_') // Replace spaces with underscores
         .trim() || 'Goalie' // Fallback if empty after sanitization
       const fileName = `${sanitizedName}_Goalie_Journal_${season}.pdf`
-      doc.save(fileName)
+      const blob = doc.output('blob')
+      
+      // Store the blob and filename for download
+      setGeneratedBlob(blob)
+      setGeneratedFileName(fileName)
 
       // Track event
       trackEvent('generate_journal', {
         team_name: teamName
       })
-
-      // Close modal and reset form
-      setShowModal(false)
-      setGoalieName("")
-      setTeamName("")
-      setSelectedLogo(null)
-      setLogoPreview(null)
-      setValidationError('')
     } catch (error) {
       console.error('Error generating journal:', error)
       setValidationError('There was an error generating the journal. Please try again.')
@@ -229,16 +227,51 @@ export default function GoalieJournalButton() {
     }
   }
 
+  const handleDownload = () => {
+    if (generatedBlob && generatedFileName) {
+      // Create download link
+      const url = URL.createObjectURL(generatedBlob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = generatedFileName
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+      
+      // Track download event
+      trackEvent('download_journal', {
+        team_name: teamName
+      })
+      
+      // Close modal and reset form
+      setShowModal(false)
+      setGoalieName("")
+      setTeamName("")
+      setSelectedLogo(null)
+      setLogoPreview(null)
+      setValidationError('')
+      setGeneratedBlob(null)
+      setGeneratedFileName("")
+    }
+  }
+
+  const handleCancel = React.useCallback(() => {
+    setShowModal(false)
+    setGoalieName("")
+    setTeamName("")
+    setSelectedLogo(null)
+    setLogoPreview(null)
+    setValidationError('')
+    setGeneratedBlob(null)
+    setGeneratedFileName("")
+  }, [])
+
   // Close modal when Escape key is pressed
   React.useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && showModal && !isGenerating) {
-        setShowModal(false)
-        setGoalieName("")
-        setTeamName("")
-        setSelectedLogo(null)
-        setLogoPreview(null)
-        setValidationError('')
+      if (event.key === 'Escape' && showModal && !isGenerating && !generatedBlob) {
+        handleCancel()
       }
     }
 
@@ -246,7 +279,7 @@ export default function GoalieJournalButton() {
       document.addEventListener('keydown', handleEscape)
       return () => document.removeEventListener('keydown', handleEscape)
     }
-  }, [showModal, isGenerating])
+  }, [showModal, isGenerating, generatedBlob, handleCancel])
 
   return (
     <>
@@ -261,13 +294,8 @@ export default function GoalieJournalButton() {
         <div 
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
           onClick={() => {
-            if (!isGenerating) {
-              setShowModal(false)
-              setGoalieName("")
-              setTeamName("")
-              setSelectedLogo(null)
-              setLogoPreview(null)
-              setValidationError('')
+            if (!isGenerating && !generatedBlob) {
+              handleCancel()
             }
           }}
         >
@@ -297,7 +325,8 @@ export default function GoalieJournalButton() {
                 id="goalieName"
                 value={goalieName}
                 onChange={(e) => setGoalieName(e.target.value)}
-                className="w-full px-4 py-2 border-2 border-usa-blue dark:border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-usa-blue dark:bg-gray-700 dark:text-white"
+                disabled={!!generatedBlob}
+                className="w-full px-4 py-2 border-2 border-usa-blue dark:border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-usa-blue dark:bg-gray-700 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
                 placeholder="Enter goalie name"
               />
             </div>
@@ -311,7 +340,8 @@ export default function GoalieJournalButton() {
                 id="teamName"
                 value={teamName}
                 onChange={(e) => setTeamName(e.target.value)}
-                className="w-full px-4 py-2 border-2 border-usa-blue dark:border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-usa-blue dark:bg-gray-700 dark:text-white"
+                disabled={!!generatedBlob}
+                className="w-full px-4 py-2 border-2 border-usa-blue dark:border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-usa-blue dark:bg-gray-700 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
                 placeholder="Enter team name"
               />
             </div>
@@ -325,7 +355,8 @@ export default function GoalieJournalButton() {
                 id="teamLogo"
                 accept="image/*"
                 onChange={handleLogoChange}
-                className="w-full px-4 py-2 border-2 border-usa-blue dark:border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-usa-blue dark:bg-gray-700 dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-usa-blue file:text-white hover:file:bg-blue-900 dark:file:bg-blue-600 dark:hover:file:bg-blue-700"
+                disabled={!!generatedBlob}
+                className="w-full px-4 py-2 border-2 border-usa-blue dark:border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-usa-blue dark:bg-gray-700 dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-usa-blue file:text-white hover:file:bg-blue-900 dark:file:bg-blue-600 dark:hover:file:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               />
               {logoPreview && (
                 <div className="mt-4 flex justify-center">
@@ -349,29 +380,48 @@ export default function GoalieJournalButton() {
               </div>
             )}
 
+            {generatedBlob && !validationError && (
+              <div className="mb-4 p-3 bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-600 text-green-700 dark:text-green-200 rounded-lg text-sm">
+                Journal generated successfully! Click Download to save it.
+              </div>
+            )}
+
             <div className="flex gap-4">
-              <button
-                onClick={generateJournal}
-                disabled={isGenerating}
-                className={`flex-1 bg-usa-blue hover:bg-blue-900 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors ${
-                  isGenerating ? 'opacity-50 cursor-not-allowed' : ''
-                }`}
-              >
-                {isGenerating ? 'Generating...' : 'Generate'}
-              </button>
-              <button
-                onClick={() => {
-                  setShowModal(false)
-                  setGoalieName("")
-                  setTeamName("")
-                  setSelectedLogo(null)
-                  setLogoPreview(null)
-                }}
-                disabled={isGenerating}
-                className="flex-1 bg-gray-400 hover:bg-gray-500 dark:bg-gray-600 dark:hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
-              >
-                Cancel
-              </button>
+              {!generatedBlob ? (
+                <>
+                  <button
+                    onClick={generateJournal}
+                    disabled={isGenerating}
+                    className={`flex-1 bg-usa-blue hover:bg-blue-900 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors ${
+                      isGenerating ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                  >
+                    {isGenerating ? 'Generating...' : 'Generate'}
+                  </button>
+                  <button
+                    onClick={handleCancel}
+                    disabled={isGenerating}
+                    className="flex-1 bg-gray-400 hover:bg-gray-500 dark:bg-gray-600 dark:hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={handleDownload}
+                    className="flex-1 bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+                  >
+                    Download
+                  </button>
+                  <button
+                    onClick={handleCancel}
+                    className="flex-1 bg-gray-400 hover:bg-gray-500 dark:bg-gray-600 dark:hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+                  >
+                    Close
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
