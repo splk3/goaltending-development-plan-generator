@@ -179,7 +179,7 @@ This repository uses GitHub Actions for automation:
    - Executes `npm install` and `npm run build` to verify build process
 
 4. **Release Prep** (`release-prep.yml`):
-   - Triggers on manual workflow dispatch or prerelease creation
+   - Triggers on manual workflow dispatch or on release creation (filtered to prereleases by tag suffix)
    - Automatically creates GitHub issues for documentation updates
    - Creates issues titled "update README and copilot instructions"
    - Helps maintain documentation currency after releases
