@@ -31,7 +31,7 @@ jobs:
               - README.md
               - .github/copilot-instructions.md
               - Any other relevant documentation`,
-              assignees: ['splk3'],
+              assignees: ['splk3', 'copilot'],
               labels: ['documentation', 'copilot']
             });
             console.log(`Created issue #${issue.data.number}: ${issue.data.html_url}`);
