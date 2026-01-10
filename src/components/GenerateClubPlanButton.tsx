@@ -393,7 +393,7 @@ export default function GenerateClubPlanButton() {
 
       // Track event
       trackEvent('generate_plan', {
-        type: 'individual',
+        type: 'club',
         team_name_provided: !!teamName, // Track whether a team name was provided
         team_name: teamName
       })
@@ -411,7 +411,7 @@ export default function GenerateClubPlanButton() {
       
       // Track download event
       trackEvent('download_plan', {
-        type: 'individual',
+        type: 'club',
         team_name: teamName
       })
       
