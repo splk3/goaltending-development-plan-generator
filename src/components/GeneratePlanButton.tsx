@@ -481,7 +481,7 @@ export default function GeneratePlanButton() {
 
             <div className="mb-6">
               <label htmlFor="teamImage" className="block text-gray-700 dark:text-gray-300 font-semibold mb-2">
-                Team Logo/Image (Optional)
+                Team Logo/Image (optional)
               </label>
               <input
                 type="file"
