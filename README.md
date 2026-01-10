@@ -2,6 +2,16 @@
 
 Goalie Gen (Goaltending Development Plan Generator) makes it easy for youth ice hockey teams and clubs to generate customized goaltending development plans.
 
+## 🎯 Features
+
+- **Individual Development Plans**: Generate personalized goaltending development plans
+- **Team Development Plans**: Create development plans for entire goaltending rosters
+- **Goalie Journal**: Export printable goalie journals for tracking progress
+- **Drill Library**: Access and download various goaltending drills
+- **PDF/DOCX Export**: Export plans in multiple formats using jsPDF and docx libraries
+- **Dark Mode**: Built-in dark mode toggle for comfortable viewing
+- **Responsive Design**: Mobile-friendly interface for on-the-go access
+
 ## 🚀 Quick Start
 
 1.  **Install dependencies**
@@ -84,6 +94,31 @@ This project is fully TypeScript-enabled:
 - Type definitions included for all dependencies
 - TypeScript compilation handled automatically by Gatsby
 
+## 🔄 GitHub Actions Workflows
+
+This repository uses GitHub Actions for automation and CI/CD:
+
+### 1. Deploy to GitHub Pages (`deploy.yml`)
+- **Trigger**: Automatic on push to `main` branch
+- **Purpose**: Builds and deploys the site to GitHub Pages
+- **Actions**: Runs `npm run build`, uploads artifact, and deploys to GitHub Pages
+- **Node Version**: 20.x with npm caching enabled
+
+### 2. Super Linter (`super-linter.yml`)
+- **Trigger**: On every push to any branch + weekly on Saturdays at 2:00 AM UTC
+- **Purpose**: Validates code quality across multiple languages and formats
+- **Requirement**: All code changes must pass linting before merge
+
+### 3. Test Build (`test-build.yml`)
+- **Trigger**: Pull requests, manual triggers, and weekly schedule
+- **Purpose**: Verifies that the site builds successfully without deploying
+- **Actions**: Runs `npm install` and `npm run build`
+
+### 4. Release Prep (`release-prep.yml`)
+- **Trigger**: Manual workflow dispatch or on release creation (filtered to prereleases by tag suffix)
+- **Purpose**: Automatically creates documentation update issues
+- **Actions**: Creates GitHub issue for README and copilot instructions updates
+
 ## 🚀 Deployment
 
 This site is deployed to GitHub Pages with custom domain support via GitHub Actions.
@@ -118,6 +153,36 @@ This command builds the site and pushes the `public/` directory to the `gh-pages
 - Production builds use `.env.production` when `NODE_ENV=production`
 - Custom domain is set in `static/CNAME` file
 
+## 🔧 Repository Configuration
+
+### CODEOWNERS
+The repository uses a `.github/CODEOWNERS` file to define code ownership. Currently, `@splk3` is the default owner for all files.
+
+### Dependabot
+Dependabot is configured via `.github/dependabot.yml` to automatically check for:
+- npm package updates (weekly)
+- GitHub Actions updates (weekly)
+- Maximum of 10 open pull requests per ecosystem
+
+### Environment Variables
+- `.env.development`: Development environment configuration (e.g., `GATSBY_SITE_URL=https://dev.goaliegen.com`)
+- `.env.production`: Production environment configuration (e.g., `GATSBY_SITE_URL=https://goaliegen.com`)
+- `.env.example`: Template for environment variables
+
+## 🤝 Contributing
+
+This is a Gatsby/React project with TypeScript. When contributing:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes (ensure TypeScript and Tailwind CSS conventions are followed)
+4. Test locally with `npm run develop` and `npm run build`
+5. Commit your changes with clear messages
+6. Push to your branch
+7. Open a Pull Request
+
+For detailed development guidelines, see `.github/copilot-instructions.md`.
+
 ## 📝 License
 
-See the [LICENSE](LICENSE) file for details.
+This project is licensed under the BSD-3-Clause License. See the [LICENSE](LICENSE) file for details.
